@@ -193,5 +193,5 @@ export {
     State,
     render,
     onFocus, onBlur, onClick, onMouseOver, onKeydown,
-    getValue
+    getValue, is_opened
 };
