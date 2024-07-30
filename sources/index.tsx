@@ -222,4 +222,5 @@ const Dropdown = ( props: {
     className: props.className
 } );
 
+export { Option };
 export default Dropdown;
