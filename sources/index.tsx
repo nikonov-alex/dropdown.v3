@@ -53,8 +53,7 @@ const remove_opened = <T extends {}>( data: T & HasOpened ): T & NoOpened =>
 
 
 type Inactive = {
-    options: Options,
-    class?: string
+    options: Options
 };
 type Focused = Inactive & HasFocused;
 type Opened = Focused & HasOpened;
@@ -105,7 +104,6 @@ const Value = ( state: State): HTMLElement =>
 
 const render = (state: State): HTMLElement =>
     <div className={ "dropdown"
-        + (state.class ? ` ${state.class}` : "")
         + (is_opened( state ) ? " opened" : "")
     }
          tabIndex={ 0 }
@@ -202,7 +200,8 @@ const changeEvent = ( state: State ): Event =>
 
 const Dropdown = ( props: {
     initialState: State,
-    id?: string
+    id?: string,
+    className?: string
 } ) => main( {
     initialState: props.initialState,
     render,
@@ -217,7 +216,8 @@ const Dropdown = ( props: {
         when: valueChanged,
         emit: changeEvent
     } ],
-    id: props.id
+    id: props.id,
+    className: props.className
 } );
 
 export default Dropdown;
