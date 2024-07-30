@@ -1,6 +1,6 @@
 {
   "name": "@nikonov-alex/dropdown.v3",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Dropdown based on @nikonov-alex/frontend library",
   "main": "build/index.js",
   "types": "sources/index.tsx",

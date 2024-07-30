@@ -1,4 +1,4 @@
-import { make, Reactor } from "@nikonov-alex/reactor";
+import * as Reactor from "@nikonov-alex/reactor";
 import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
 import * as OptionsComponent from "./options";
 
@@ -198,11 +198,11 @@ const changeEvent = ( state: State ): Event =>
 
 
 
-const dropdown = ( args: {
+const make = ( args: {
     options: Options,
     id?: string,
     className?: string
-} ): Reactor<State> => make( {
+} ): Reactor.Reactor<State> => Reactor.make( {
     initialState: {
         options: args.options
     },
@@ -223,4 +223,4 @@ const dropdown = ( args: {
 } );
 
 export { Option };
-export default dropdown;
+export default make;
