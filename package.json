@@ -1,6 +1,6 @@
 {
   "name": "@nikonov-alex/dropdown.v3",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Dropdown based on @nikonov-alex/frontend library",
   "main": "build/index.js",
   "types": "sources/index.tsx",
@@ -25,8 +25,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@nikonov-alex/frontend": "^0.0.10",
     "@nikonov-alex/functional-library": "^0.0.31",
+    "@nikonov-alex/reactor": "^0.0.2",
     "jsx-dom": "^8.1.4"
   }
 }
