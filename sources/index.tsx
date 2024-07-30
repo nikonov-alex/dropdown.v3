@@ -1,3 +1,4 @@
+import main from "@nikonov-alex/frontend";
 import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
 import * as OptionsComponent from "./options";
 
@@ -184,14 +185,39 @@ const onKeydown = ( state: State, event: Event ): State =>
 
 
 
-
 const getValue = ( state: State ): Option =>
     state.options.value
 
 
-export {
-    State,
+
+
+const valueChanged = ( oldState: State, newState: State ): boolean =>
+    !is_opened( newState ) && getValue( oldState ) !== getValue( newState );
+
+const changeEvent = ( state: State ): Event =>
+    new CustomEvent( "change", { detail: getValue( state ), bubbles: true } );
+
+
+
+
+const Dropdown = ( props: {
+    initialState: State,
+    id?: string
+} ) => main( {
+    initialState: props.initialState,
     render,
-    onFocus, onBlur, onClick, onMouseOver, onKeydown,
-    getValue, is_opened
-};
+    events: {
+        "focus": onFocus,
+        "blur": onBlur,
+        "click": onClick,
+        "mouseover": onMouseOver,
+        "keydown": onKeydown
+    },
+    emit: [ {
+        when: valueChanged,
+        emit: changeEvent
+    } ],
+    id: props.id
+} );
+
+export default Dropdown;
