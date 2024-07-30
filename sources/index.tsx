@@ -222,5 +222,4 @@ const make = ( args: {
     className: args.className
 } );
 
-export { Option };
-export default make;
+export { Option, make };
