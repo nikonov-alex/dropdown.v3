@@ -199,11 +199,13 @@ const changeEvent = ( state: State ): Event =>
 
 
 const Dropdown = ( props: {
-    initialState: State,
+    options: Options,
     id?: string,
     className?: string
 } ) => main( {
-    initialState: props.initialState,
+    initialState: {
+        options: props.options
+    },
     render,
     events: {
         "focus": onFocus,
