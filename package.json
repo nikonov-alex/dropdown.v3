@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@nikonov-alex/functional-library": "^0.0.31",
-    "@nikonov-alex/reactor": "^0.0.2",
+    "@nikonov-alex/reactor": "^0.0.26",
     "jsx-dom": "^8.1.4"
   }
 }

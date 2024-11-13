@@ -58,7 +58,9 @@ type Inactive = {
 type Focused = Inactive & HasFocused;
 type Opened = Focused & HasOpened;
 
-type State = Inactive | Focused | Opened;
+type State = (Inactive | Focused | Opened) & {
+    className?: string
+};
 
 const set_options = <T extends Inactive>( data: T, options: Options ): T =>
     data.options === options
@@ -105,6 +107,7 @@ const Value = ( state: State): HTMLElement =>
 const render = (state: State): HTMLElement =>
     <div className={ "dropdown"
         + (is_opened( state ) ? " opened" : "")
+        + (state.className ? ` ${state.className}` : "")
     }
          tabIndex={ 0 }
         //@ts-ignore
@@ -201,10 +204,12 @@ const changeEvent = ( state: State ): Event =>
 const make = ( args: {
     options: Options,
     id?: string,
-    className?: string
-} ): Reactor.Reactor<State> => Reactor.make( {
+    className?: string,
+    styles?: CSSStyleSheet
+} ): Reactor.Type<State> => Reactor.make( {
     initialState: {
-        options: args.options
+        options: args.options,
+        className: args.className
     },
     render,
     events: {
@@ -219,7 +224,7 @@ const make = ( args: {
         emit: changeEvent
     } ],
     id: args.id,
-    className: args.className
+    styles: args.styles
 } );
 
 export { Option, make };
