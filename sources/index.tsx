@@ -227,4 +227,4 @@ const make = ( args: {
     styles: args.styles
 } );
 
-export { Option, make };
+export { Option, State, make };
