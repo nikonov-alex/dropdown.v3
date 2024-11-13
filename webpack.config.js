@@ -27,5 +27,8 @@ module.exports = {
     },
     optimization: {
         minimize: true
+    },
+    externals: {
+        "@nikonov-alex/reactor": "@nikonov-alex/reactor"
     }
 };
