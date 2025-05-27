@@ -170,7 +170,7 @@ const onKeydown = <T,>( state: State<T>, event: Event ): State<T> =>
 
 
 
-const getValue = <T,>( state: State<T> ): T =>
+const getValue = <T,>( state: State<T> ): T | null =>
     state.options.value.value;
 
 
