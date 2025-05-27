@@ -27,41 +27,44 @@ const OPTION_LABEL_STYLES = {
 
 
 
-type BaseState = { options: Options };
+type BaseState<T> = { options: Options<T> };
 
-type Opened = { selection: Options };
+type Opened<T> = { selection: Options<T> };
 type Closed = { selection?: undefined };
 
-type State = BaseState | BaseState & Opened;
+type State<T> = BaseState<T> | BaseState<T> & Opened<T>;
 
-const is_opened = ( state: State ): state is BaseState & Opened =>
+const is_opened = <T,>( state: State<T> ): state is BaseState<T> & Opened<T> =>
     "selection" in state && typeof state.selection === "object";
 
-const open = ( state: BaseState & Closed ): BaseState & Opened =>
+const open = <T,>( state: BaseState<T> & Closed ): BaseState<T> & Opened<T> =>
     ( { ... state, selection: state.options } );
 
-const close = ( state: BaseState & Opened ): BaseState & Closed =>
+const close = <T,>( state: BaseState<T> & Opened<T> ): BaseState<T> & Closed =>
     ( { ... state, selection: undefined } );
 
-const set_selection = ( state: State, selection: Options ): BaseState & Opened =>
+const set_selection = <T,>( state: State<T>, selection: Options<T> ): BaseState<T> & Opened<T> =>
     ( { ... state, selection } );
 
-const apply_selection = ( state: BaseState & Opened ): BaseState & Opened =>
+const apply_selection = <T,>( state: BaseState<T> & Opened<T> ): BaseState<T> & Opened<T> =>
     ( { ... state, options: state.selection } );
 
-const selected_index = ( state: BaseState & Opened ): number =>
+const selected_index = <T,>( state: BaseState<T> & Opened<T> ): number =>
     state.selection.left.length;
 
-const getOptions = ( state: State ): Options =>
+const getOptions = <T,>( state: State<T> ): Options<T> =>
     state.options;
 
-const getValue = ( state: State ): Option =>
+const getValue = <T,>( state: State<T> ): Option<T> =>
     state.options.value;
 
 
 
 
-const Option = ( props: { option: Option, selected?: true } ): HTMLElement =>
+const Option = <T,>( props: {
+    option: Option<T>,
+    selected?: true
+} ): HTMLElement =>
     <li className={ "dropdown-option"
         + ( props.option.class ? ` ${props.option.class}` : "" )
     }
@@ -70,15 +73,14 @@ const Option = ( props: { option: Option, selected?: true } ): HTMLElement =>
             color: props.option.disabled ? "lightgrey" : undefined
         } }
         data-selected={ props.selected }
-        data-disabled={ props.option.disabled }
-        data-value={ props.option.value }>
+        data-disabled={ props.option.disabled }>
             <span className="dropdown-option-label"
                 //@ts-ignore
                   style={ OPTION_LABEL_STYLES }
                   dangerouslySetInnerHTML={ { __html: props.option.label } } />
     </li> as HTMLElement;
 
-const render = ( state: State ): HTMLElement =>
+const render = <T,>( state: State<T> ): HTMLElement =>
     !is_opened( state )
         ? <span /> as HTMLElement
         : <ul className="dropdown-options"
@@ -92,13 +94,6 @@ const render = ( state: State ): HTMLElement =>
 const is_disabled = ( option: HTMLElement ): boolean =>
     "disabled" in option.dataset;
 
-const get_class = ( option: HTMLElement ): string | undefined =>
-    local( option.className
-        .replace( "dropdown-option", "" )
-        .trim(), className =>
-        className === "" ? undefined : className
-    );
-
 const find_option = (target: EventTarget | null): HTMLElement | null =>
     target instanceof HTMLElement
         ? target.closest(".dropdown-option")
@@ -107,39 +102,20 @@ const find_option = (target: EventTarget | null): HTMLElement | null =>
 const option_index = ( option: HTMLElement ): number =>
     Array.prototype.indexOf.call( option.parentElement!.children, option );
 
-const find_left_options = ( option: HTMLElement ): HTMLElement[] =>
-    Array.prototype.slice.call(
-        option.parentElement!.children,
-        0,
-        option_index( option )
-    );
-
-const find_right_options = ( option: HTMLElement ): HTMLElement[] =>
-    //@ts-ignore
-    Array.prototype.slice.call(
-        option.parentElement!.children,
-        option_index( option ) + 1
-    );
-
-const to_option = ( option: HTMLElement ): Option =>
-    ( {
-        value: option.dataset.value as string,
-        label: option.querySelector( ".dropdown-option-label" )!.innerHTML,
-        disabled: is_disabled( option ),
-        class: get_class( option )
-    } );
-
-const create_options = ( option: HTMLElement ): Options =>
-    ( {
-        left: find_left_options( option ).map( to_option ),
-        value: to_option( option ),
-        right: find_right_options( option ).map( to_option )
-    } )
+const create_options = <T,>( state: State<T> & Opened<T>, option: HTMLElement ): Options<T> =>
+    local( state.selection.left.concat( state.selection.value ).concat( state.selection.right ), options =>
+    local( option_index( option ), selectedIndex => (
+        {
+            left: options.slice( 0, selectedIndex ),
+            value: options[selectedIndex],
+            right: options.slice( selectedIndex + 1 ),
+        }
+    )));
 
 
 
 
-const clicked = ( state: State, event: Event ): State =>
+const clicked = <T,>( state: State<T>, event: Event ): State<T> =>
     !is_opened( state ) ? state
         : local( find_option( event.target ), option =>
             !option || is_disabled( option )
@@ -147,17 +123,17 @@ const clicked = ( state: State, event: Event ): State =>
                 : close( apply_selection( state ) )
         );
 
-const mouseMoved = ( state: State, event: Event ): State =>
+const mouseMoved = <T,>( state: State<T>, event: Event ): State<T> =>
     !is_opened( state ) ? state
         : local( find_option( event.target ), option =>
             !(option instanceof HTMLElement) ||
             option_index( option ) === selected_index( state ) ||
             is_disabled( option )
                 ? state
-                : set_selection( state, create_options( option ) )
+                : set_selection( state, create_options( state, option ) )
         );
 
-const keydown = ( state: State, event: Event ): State =>
+const keydown = <T,>( state: State<T>, event: Event ): State<T> =>
     !is_opened( state ) ? state
         : (event as KeyboardEvent).altKey
             ? [ "ArrowDown", "ArrowUp" ].includes( (event as KeyboardEvent).code )
@@ -181,7 +157,7 @@ const keydown = ( state: State, event: Event ): State =>
 
 
 
-const make_initial_state = ( options: Options ): State & Opened =>
+const make_initial_state = <T,>( options: Options<T> ): State<T> & Opened<T> =>
     ( open( { options } ) );
 
 
