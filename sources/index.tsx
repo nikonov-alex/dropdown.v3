@@ -1,5 +1,5 @@
 import * as Reactor from "@nikonov-alex/reactor";
-import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
+import { Option, Options, maybe_select_prev, maybe_select_next, getLabel } from "./types";
 import * as OptionsComponent from "./options";
 
 
@@ -98,7 +98,7 @@ const Value = <T,>( state: State<T>): HTMLElement =>
         //@ts-ignore
          style={ VALUE_STYLES }>{
              is_opened( state )
-                ? OptionsComponent.getValue( state.opened ).label
+                ? getLabel( OptionsComponent.getValue( state.opened ) )
                 : state.options.value.label
     }</div> as HTMLElement;
 
@@ -111,7 +111,7 @@ const is_options_event = ( event: Event ): boolean =>
 
 
 const onFocus = <T,>(state: State<T>, event: Event): State<T> =>
-    !is_focused( state )
+    !is_focused<State<T>, T>( state )
         ? focus( state )
     : state;
 
@@ -123,8 +123,8 @@ const onBlur = <T,>(state: State<T>, event: Event): State<T> =>
     : state;
 
 const onClick = <T,>( state: State<T>, event: Event ): State<T> =>
-    has_focused( state )
-        ? has_opened( state )
+    has_focused<State<T>>( state )
+        ? has_opened<State<T>, T>( state )
             ? maybeClose(
                 set_opened(
                     state,
@@ -145,10 +145,10 @@ const focusedKeydown = <S extends {}, T>( state: S & Focused<T> & NoOpened, even
         ? state
     : (event as KeyboardEvent).altKey
         ? [ "ArrowDown", "ArrowUp" ].includes( (event as KeyboardEvent).code )
-            ? open( state )
+            ? open<T, S & Focused<T> & NoOpened>( state )
             : state
     : [ "Enter", "Space" ].includes( (event as KeyboardEvent).code )
-        ? open( state )
+        ? open<T, S & Focused<T> & NoOpened>( state )
     : "ArrowDown" === (event as KeyboardEvent).code
         ? set_options( state, maybe_select_next( state.options ) )
     : "ArrowLeft" === (event as KeyboardEvent).code
@@ -160,9 +160,9 @@ const focusedKeydown = <S extends {}, T>( state: S & Focused<T> & NoOpened, even
     : state;
 
 const onKeydown = <T,>( state: State<T>, event: Event ): State<T> =>
-    !is_focused( state )
+    !is_focused<State<T>, T>( state )
         ? state
-    : has_opened( state )
+    : has_opened<State<T>, T>( state )
         ? maybeClose(
             set_opened( state, OptionsComponent.keydown( state.opened, event ) ))
         : focusedKeydown( state, event );
