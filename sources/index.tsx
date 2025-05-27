@@ -97,9 +97,9 @@ const Value = <T,>( state: State<T>): HTMLElement =>
     <div className="dropdown-value"
         //@ts-ignore
          style={ VALUE_STYLES }>{
-             is_opened( state )
-                ? getLabel( OptionsComponent.getValue( state.opened ) )
-                : state.options.value.label
+            getLabel( is_opened<State<T>, T>( state )
+                ? OptionsComponent.getValue( state.opened )
+                : state.options.value )
     }</div> as HTMLElement;
 
 const is_options_event = ( event: Event ): boolean =>
