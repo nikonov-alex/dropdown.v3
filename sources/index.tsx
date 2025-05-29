@@ -1,6 +1,10 @@
 import * as Reactor from "@nikonov-alex/reactor";
 import { Option, Options, maybe_select_prev, maybe_select_next, getLabel } from "./types";
 import * as OptionsComponent from "./options";
+import { Constructs } from "@nikonov-alex/functional-library";
+const { local } = Constructs;
+import { DetailedHTMLProps, HTMLAttributes } from "jsx-dom/types";
+
 
 
 const CONTAINER_STYLES = {
@@ -16,6 +20,8 @@ const VALUE_STYLES = {
     width: "100%",
     boxSizing: "border-box"
 }
+
+const VALID: [ValidityStateFlags, string] = [ {}, "" ];
 
 
 
@@ -185,11 +191,36 @@ const changeEvent = <T,>( state: State<T> ): Event =>
 
 
 
+const hasValue = <T,>( state: State<T> ): [ValidityStateFlags, string] =>
+    getValue( state ) === ""
+        ? [ { valueMissing: true }, "This field is required" ]
+        : VALID;
+
+
+
+
+class Dropdown extends HTMLElement {
+    static formAssociated = true;
+    public readonly internals = this.attachInternals();
+}
+
+customElements.define( "nikonov-dropdown", Dropdown );
+
+declare module "jsx-dom" {
+    namespace JSX {
+        interface IntrinsicElements {
+            "nikonov-dropdown": DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>,
+        }
+    }
+}
+
+
 function make<T,>( args: {
     options: Options<T>,
     id?: string,
     className?: string,
-    styles?: CSSStyleSheet
+    styles?: CSSStyleSheet,
+    required?: boolean
 } ): Reactor.Type<State<T>> {
 
     const render = (state: State<T>): HTMLElement =>
@@ -206,25 +237,52 @@ function make<T,>( args: {
                 : <span /> }
         </div> as HTMLElement;
 
-    return Reactor.make<State<T>>( {
-        initialState: {
-            options: args.options
-        },
-        render,
-        events: {
-            "focus": onFocus,
-            "blur": onBlur,
-            "click": onClick,
-            "mouseover": onMouseOver,
-            "keydown": onKeydown
-        },
-        emit: [ {
-            when: valueChanged,
-            emit: changeEvent
-        } ],
-        id: args.id,
-        styles: args.styles
-    } )
+
+
+
+    const validate = ( state: State<T> ): [ValidityStateFlags, string] =>
+        args.required
+            ? hasValue( state )
+        : VALID;
+
+    const formValue = ( state: State<T> ): string =>
+        local( getValue( state ), value =>
+            null === value
+                ? ""
+            : typeof value === "string"
+                ? value
+            : JSON.stringify( value )
+        );
+
+
+
+    return local( <nikonov-dropdown /> as Dropdown, container =>
+        Reactor.make<State<T>>( {
+            initialState: {
+                options: args.options
+            },
+            render,
+            events: {
+                "focus": onFocus,
+                "blur": onBlur,
+                "click": onClick,
+                "mouseover": onMouseOver,
+                "keydown": onKeydown
+            },
+            emit: [ {
+                when: valueChanged,
+                emit: changeEvent
+            } ],
+            id: args.id,
+            styles: args.styles,
+            validation: {
+                internals: container.internals,
+                validate,
+                formValue
+            },
+            container
+        } )
+    );
 }
 
 export { Option, State, make };
