@@ -1,6 +1,6 @@
 {
   "name": "@nikonov-alex/dropdown.v3",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "Dropdown based on @nikonov-alex/frontend library",
   "main": "build/index.js",
   "types": "sources/index.tsx",
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@nikonov-alex/functional-library": "^0.0.31",
-    "deepmerge": "^4.3.1",
-    "jsx-dom": "^8.1.4"
+    "jsx-dom": "^8.1.4",
+    "lodash.merge": "^4.6.2"
   }
 }

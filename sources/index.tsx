@@ -4,7 +4,7 @@ import * as OptionsComponent from "./options";
 import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
 import { DetailedHTMLProps, HTMLAttributes } from "jsx-dom/types";
-import deepmerge from "deepmerge";
+const merge = require('lodash.merge');
 
 
 
@@ -257,7 +257,7 @@ function make<T,>( args: {
 
 
     return local( <nikonov-dropdown tabIndex={ -1 } /> as Dropdown, container =>
-        Reactor.make<State<T>>( deepmerge( {
+        Reactor.make<State<T>>( merge( { }, {
             initialState: {
                 options: args.options
             },
