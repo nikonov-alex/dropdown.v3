@@ -4,6 +4,7 @@ import * as OptionsComponent from "./options";
 import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
 import { DetailedHTMLProps, HTMLAttributes } from "jsx-dom/types";
+import deepmerge from "deepmerge";
 
 
 
@@ -256,7 +257,7 @@ function make<T,>( args: {
 
 
     return local( <nikonov-dropdown tabIndex={ -1 } /> as Dropdown, container =>
-        Reactor.make<State<T>>( {
+        Reactor.make<State<T>>( deepmerge( {
             initialState: {
                 options: args.options
             },
@@ -278,9 +279,8 @@ function make<T,>( args: {
                 validate,
                 formValue
             },
-            container,
-            ... args
-        } )
+            container
+        }, args ) )
     );
 }
 
