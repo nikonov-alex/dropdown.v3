@@ -285,4 +285,4 @@ function make<T,>( args: {
 }
 
 export { Option, State, make, getValue };
-export { set_options };
+export { set_options, is_opened, close };
