@@ -1,30 +1,15 @@
-type OptionBase = {
+type Option<T> = {
+    value: T | null,
+    label: string | HTMLElement,
     disabled?: boolean,
     class?: string
-}
-
-type NullOption = OptionBase & {
-    value: null,
-    label: string;
 };
-
-type ValueOption<T> = OptionBase & {
-    value: T,
-    label: string | { (v: T): string }
-}
-
-type Option<T> = NullOption | ValueOption<T>;
 
 type Options<T> = {
     left: Option<T>[],
     value: Option<T>,
     right: Option<T>[]
 }
-
-const getLabel = <T>( option: Option<T> ): string =>
-    typeof option.label === "function"
-        ? option.label( option.value as T )
-        : option.label;
 
 
 const select_prev = <T>( options: Options<T> ): Options<T> =>
@@ -63,4 +48,4 @@ const maybe_select_next = <T>( options: Options<T> ): Options<T> =>
     select_next_recursive( options, options );
 
 
-export { Option, Options, maybe_select_prev, maybe_select_next, getLabel };
+export { Option, Options, maybe_select_prev, maybe_select_next };

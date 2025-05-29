@@ -1,5 +1,5 @@
 import * as Reactor from "@nikonov-alex/reactor";
-import { Option, Options, maybe_select_prev, maybe_select_next, getLabel } from "./types";
+import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
 import * as OptionsComponent from "./options";
 import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
@@ -104,9 +104,9 @@ const Value = <T,>( state: State<T>): HTMLElement =>
     <div className="dropdown-value"
         //@ts-ignore
          style={ VALUE_STYLES }>{
-            getLabel( is_opened<State<T>, T>( state )
-                ? OptionsComponent.getValue( state.opened )
-                : state.options.value )
+            is_opened( state )
+                ? OptionsComponent.getValue( state.opened ).label
+                : state.options.value.label
     }</div> as HTMLElement;
 
 const is_options_event = ( event: Event ): boolean =>

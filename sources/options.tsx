@@ -1,6 +1,6 @@
 import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
-import { Option, Options, maybe_select_prev, maybe_select_next, getLabel } from "./types";
+import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
 
 
 const OPTIONS_STYLES = {
@@ -76,8 +76,9 @@ const Option = <T,>( props: {
         data-disabled={ props.option.disabled }>
             <span className="dropdown-option-label"
                 //@ts-ignore
-                  style={ OPTION_LABEL_STYLES }
-                  dangerouslySetInnerHTML={ { __html: getLabel( props.option ) } } />
+                  style={ OPTION_LABEL_STYLES }>
+                { props.option.label }
+            </span>
     </li> as HTMLElement;
 
 const render = <T,>( state: State<T> ): HTMLElement =>
