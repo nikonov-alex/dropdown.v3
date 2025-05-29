@@ -202,6 +202,11 @@ const hasValue = <T,>( state: State<T> ): [ValidityStateFlags, string] =>
 class Dropdown extends HTMLElement {
     static formAssociated = true;
     public readonly internals = this.attachInternals();
+
+    constructor() {
+        super();
+        this.tabIndex = -1;
+    }
 }
 
 customElements.define( "nikonov-dropdown", Dropdown );
@@ -219,9 +224,8 @@ function make<T,>( args: {
     options: Options<T>,
     id?: string,
     className?: string,
-    styles?: CSSStyleSheet,
     required?: boolean
-} ): Reactor.Type<State<T>> {
+} & Partial<Reactor.Args<State<T>>> ): Reactor.Type<State<T>> {
 
     const render = (state: State<T>): HTMLElement =>
         <div className={ "dropdown"
@@ -274,13 +278,13 @@ function make<T,>( args: {
                 emit: changeEvent
             } ],
             id: args.id,
-            styles: args.styles,
             validation: {
                 internals: container.internals,
                 validate,
                 formValue
             },
-            container
+            container,
+            ... args
         } )
     );
 }
