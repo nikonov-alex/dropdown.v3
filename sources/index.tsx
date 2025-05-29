@@ -285,4 +285,4 @@ function make<T,>( args: {
     );
 }
 
-export { Option, State, make };
+export { Option, State, make, getValue };
