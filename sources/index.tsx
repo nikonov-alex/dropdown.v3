@@ -192,7 +192,7 @@ const changeEvent = <T,>( state: State<T> ): Event =>
 
 
 const hasValue = <T,>( state: State<T> ): [ValidityStateFlags, string] =>
-    getValue( state ) === ""
+    !getValue( state )
         ? [ { valueMissing: true }, "This field is required" ]
         : VALID;
 
