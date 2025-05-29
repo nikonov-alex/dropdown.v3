@@ -202,11 +202,6 @@ const hasValue = <T,>( state: State<T> ): [ValidityStateFlags, string] =>
 class Dropdown extends HTMLElement {
     static formAssociated = true;
     public readonly internals = this.attachInternals();
-
-    constructor() {
-        super();
-        this.tabIndex = -1;
-    }
 }
 
 customElements.define( "nikonov-dropdown", Dropdown );
@@ -260,7 +255,7 @@ function make<T,>( args: {
 
 
 
-    return local( <nikonov-dropdown /> as Dropdown, container =>
+    return local( <nikonov-dropdown tabIndex={ -1 } /> as Dropdown, container =>
         Reactor.make<State<T>>( {
             initialState: {
                 options: args.options
