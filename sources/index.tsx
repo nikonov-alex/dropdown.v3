@@ -105,7 +105,11 @@ const Value = <T,>( state: State<T>): HTMLElement =>
         //@ts-ignore
          style={ VALUE_STYLES }>{
             is_opened( state )
-                ? OptionsComponent.getValue( state.opened ).label
+                ? local( OptionsComponent.getValue( state.opened ).label, label =>
+                    label instanceof HTMLElement
+                        ? label.cloneNode( true )
+                    : label
+                )
                 : state.options.value.label
     }</div> as HTMLElement;
 
