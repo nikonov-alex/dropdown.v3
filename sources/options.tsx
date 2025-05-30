@@ -77,9 +77,7 @@ const Option = <T,>( props: {
             <span className="dropdown-option-label"
                 //@ts-ignore
                   style={ OPTION_LABEL_STYLES }>
-                { props.option.label instanceof HTMLElement
-                    ? props.option.label.cloneNode( true ) as HTMLElement
-                    : props.option.label }
+                { props.option.label }
             </span>
     </li> as HTMLElement;
 
