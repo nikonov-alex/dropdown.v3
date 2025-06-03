@@ -5,6 +5,7 @@ import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
 import { DetailedHTMLProps, HTMLAttributes } from "jsx-dom/types";
 const merge = require('lodash.merge');
+import * as helpers from "./helpers";
 
 
 
@@ -177,8 +178,11 @@ const onKeydown = <T,>( state: State<T>, event: Event ): State<T> =>
 
 
 
+const getSelected = <T,>( state: State<T> ): Option<T> =>
+        state.options.value;
+
 const getValue = <T,>( state: State<T> ): T | null =>
-    state.options.value.value;
+    getSelected( state ).value;
 
 
 
@@ -284,5 +288,5 @@ function make<T,>( args: {
     );
 }
 
-export { Option, State, make, getValue, Options };
-export { set_options, is_opened, close };
+export { Option, State, make, getValue, getSelected, Options };
+export { set_options, is_opened, close, helpers };
