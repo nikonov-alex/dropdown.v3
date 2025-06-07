@@ -228,10 +228,7 @@ function make<T,>( args: {
 } & Partial<Reactor.Args<State<T>>> ): Reactor.Type<State<T>> {
 
     const render = (state: State<T>): HTMLElement =>
-        <div className={ "dropdown"
-            + (is_opened( state ) ? " opened" : "")
-            + (args.className ? ` ${args.className}` : "")
-        }
+        <div className={ `dropdown ${ args.className ?? "" } ${is_opened( state ) ? "opened" : ""}` }
              tabIndex={ 0 }
             //@ts-ignore
              style={ CONTAINER_STYLES }>
