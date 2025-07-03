@@ -285,5 +285,6 @@ function make<T,>( args: {
     );
 }
 
-export { Option, State, make, getValue, getSelected, Options };
+type Type<I> = Reactor.Type<State<I>>;
+export { Option, State, Type, make, getValue, getSelected, Options };
 export { set_options, is_opened, close, helpers };
