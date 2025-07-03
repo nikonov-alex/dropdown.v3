@@ -3,6 +3,18 @@ import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
 
 
+export const selectFirst = <T>( state: Dropdown.State<T> ): Dropdown.State<T> =>
+    ( {
+        ... state,
+        options: {
+            left: [],
+            value: state.options.left[0],
+            right: state.options.left.toSpliced( 0, 1 )
+                .concat( state.options.value )
+                .concat( state.options.right )
+        }
+    } );
+
 export const updateOptions = <T>(
     state: Dropdown.State<T>,
     update: { ( combinedOptions: Dropdown.Option<T>[] ): Dropdown.Option<T>[] }
