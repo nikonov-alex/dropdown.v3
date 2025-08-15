@@ -4,7 +4,9 @@ const { local } = Constructs;
 
 
 export const selectFirst = <T>( state: Dropdown.State<T> ): Dropdown.State<T> =>
-    ( {
+    0 === state.options.left.length
+        ? state
+    : ( {
         ... state,
         options: {
             left: [],
