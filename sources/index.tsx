@@ -214,7 +214,7 @@ function make( args: {
         required?: boolean,
     },
     reactorArgs?: Partial<Reactor.Args<State>>
-} & Partial<Reactor.Args<State>> ): Reactor.Type<State> {
+} ): Reactor.Type<State> {
 
     const className = args.className ?? "";
 
