@@ -1,9 +1,10 @@
+import { StyleInput, JSX } from "jsx-dom";
 import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
 import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
 
 
-const OPTIONS_STYLES = {
+const OPTIONS_STYLES: StyleInput = {
     position: "absolute",
     top: "100%",
     left: 0,
@@ -16,7 +17,7 @@ const OPTIONS_STYLES = {
     zIndex: 1
 };
 
-const OPTION_LABEL_STYLES = {
+const OPTION_LABEL_STYLES: StyleInput = {
     display: "inline-block",
     lineHeight: "initial",
     verticalAlign: "middle",
@@ -27,44 +28,44 @@ const OPTION_LABEL_STYLES = {
 
 
 
-type BaseState<T> = { options: Options<T> };
+type BaseState = { options: Options };
 
-type Opened<T> = { selection: Options<T> };
+type Opened = { selection: Options };
 type Closed = { selection?: undefined };
 
-type State<T> = BaseState<T> | BaseState<T> & Opened<T>;
+type State = BaseState | BaseState & Opened;
 
-const is_opened = <T,>( state: State<T> ): state is BaseState<T> & Opened<T> =>
+const is_opened = ( state: State ): state is BaseState & Opened =>
     "selection" in state && typeof state.selection === "object";
 
-const open = <T,>( state: BaseState<T> & Closed ): BaseState<T> & Opened<T> =>
+const open = ( state: BaseState & Closed ): BaseState & Opened =>
     ( { ... state, selection: state.options } );
 
-const close = <T,>( state: BaseState<T> & Opened<T> ): BaseState<T> & Closed =>
+const close = ( state: BaseState & Opened ): BaseState & Closed =>
     ( { ... state, selection: undefined } );
 
-const set_selection = <T,>( state: State<T>, selection: Options<T> ): BaseState<T> & Opened<T> =>
+const set_selection = ( state: State, selection: Options ): BaseState & Opened =>
     ( { ... state, selection } );
 
-const apply_selection = <T,>( state: BaseState<T> & Opened<T> ): BaseState<T> & Opened<T> =>
+const apply_selection = ( state: BaseState & Opened ): BaseState & Opened =>
     ( { ... state, options: state.selection } );
 
-const selected_index = <T,>( state: BaseState<T> & Opened<T> ): number =>
+const selected_index = ( state: BaseState & Opened ): number =>
     state.selection.left.length;
 
-const getOptions = <T,>( state: State<T> ): Options<T> =>
+const getOptions = ( state: State ): Options =>
     state.options;
 
-const getValue = <T,>( state: State<T> ): Option<T> =>
+const getValue = ( state: State ): Option =>
     state.options.value;
 
 
 
 
-const Option = <T,>( props: {
-    option: Option<T>,
+const Option = ( props: {
+    option: Option,
     selected?: true
-} ): HTMLElement =>
+} ): JSX.Element =>
     <li className={ "dropdown-option"
         + ( props.option.class ? ` ${props.option.class}` : "" )
     }
@@ -75,22 +76,20 @@ const Option = <T,>( props: {
         data-selected={ props.selected }
         data-disabled={ props.option.disabled }>
             <span className="dropdown-option-label"
-                //@ts-ignore
                   style={ OPTION_LABEL_STYLES }>
                 { props.option.label }
             </span>
-    </li> as HTMLElement;
+    </li>;
 
-const render = <T,>( state: State<T> ): HTMLElement =>
+const display = ( state: State ): JSX.Element =>
     !is_opened( state )
-        ? <span /> as HTMLElement
+        ? <span />
         : <ul className="dropdown-options"
-            //@ts-ignore
               style={ OPTIONS_STYLES }>
             { state.selection.left.map( option => <Option option={ option } /> ) }
             <Option option={ state.selection.value } selected={ true } />
             { state.selection.right.map( option => <Option option={ option } /> ) }
-        </ul> as HTMLElement;
+        </ul>;
 
 const is_disabled = ( option: HTMLElement ): boolean =>
     "disabled" in option.dataset;
@@ -103,7 +102,7 @@ const find_option = (target: EventTarget | null): HTMLElement | null =>
 const option_index = ( option: HTMLElement ): number =>
     Array.prototype.indexOf.call( option.parentElement!.children, option );
 
-const create_options = <T,>( state: State<T> & Opened<T>, option: HTMLElement ): Options<T> =>
+const create_options = ( state: State & Opened, option: HTMLElement ): Options =>
     local( state.selection.left.concat( state.selection.value ).concat( state.selection.right ), options =>
     local( option_index( option ), selectedIndex => (
         {
@@ -116,7 +115,7 @@ const create_options = <T,>( state: State<T> & Opened<T>, option: HTMLElement ):
 
 
 
-const clicked = <T,>( state: State<T>, event: Event ): State<T> =>
+const clicked = ( state: State, event: Event ): State =>
     !is_opened( state ) ? state
         : local( find_option( event.target ), option =>
             !option || is_disabled( option )
@@ -124,7 +123,7 @@ const clicked = <T,>( state: State<T>, event: Event ): State<T> =>
                 : close( apply_selection( state ) )
         );
 
-const mouseMoved = <T,>( state: State<T>, event: Event ): State<T> =>
+const mouseMoved = ( state: State, event: Event ): State =>
     !is_opened( state ) ? state
         : local( find_option( event.target ), option =>
             !(option instanceof HTMLElement) ||
@@ -134,7 +133,7 @@ const mouseMoved = <T,>( state: State<T>, event: Event ): State<T> =>
                 : set_selection( state, create_options( state, option ) )
         );
 
-const keydown = <T,>( state: State<T>, event: Event ): State<T> =>
+const keydown = ( state: State, event: Event ): State =>
     !is_opened( state ) ? state
         : (event as KeyboardEvent).altKey
             ? [ "ArrowDown", "ArrowUp" ].includes( (event as KeyboardEvent).code )
@@ -158,8 +157,8 @@ const keydown = <T,>( state: State<T>, event: Event ): State<T> =>
 
 
 
-const make_initial_state = <T,>( options: Options<T> ): State<T> & Opened<T> =>
+const make_initial_state = ( options: Options ): State & Opened =>
     ( open( { options } ) );
 
 
-export { State, render as Render, mouseMoved, clicked, keydown, make_initial_state, getOptions, getValue, is_opened };
+export { State, display as Display, mouseMoved, clicked, keydown, make_initial_state, getOptions, getValue, is_opened };

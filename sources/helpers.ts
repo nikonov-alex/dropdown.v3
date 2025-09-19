@@ -3,7 +3,7 @@ import { Constructs } from "@nikonov-alex/functional-library";
 const { local } = Constructs;
 
 
-export const selectFirst = <T>( state: Dropdown.State<T> ): Dropdown.State<T> =>
+export const selectFirst = ( state: Dropdown.State ): Dropdown.State =>
     0 === state.options.left.length
         ? state
     : ( {
@@ -17,13 +17,13 @@ export const selectFirst = <T>( state: Dropdown.State<T> ): Dropdown.State<T> =>
         }
     } );
 
-export const updateOptions = <T>(
-    state: Dropdown.State<T>,
-    update: { ( combinedOptions: Dropdown.Option<T>[] ): Dropdown.Option<T>[] }
-): Dropdown.State<T> =>
+export const updateOptions = (
+    state: Dropdown.State,
+    update: { ( combinedOptions: Dropdown.Option[] ): Dropdown.Option[] }
+): Dropdown.State =>
     local( Dropdown.is_opened( state ) ? Dropdown.close( state ) : state, state =>
     local( {
-        makeOptions: ( combinedOptions: Dropdown.Option<T>[], selectedIndex: number = 0 ): Dropdown.Options<T> =>
+        makeOptions: ( combinedOptions: Dropdown.Option[], selectedIndex: number = 0 ): Dropdown.Options =>
             0 === selectedIndex
                 ? { left: [], value: combinedOptions[0], right: combinedOptions.toSpliced( 0, 1 ) }
                 : {
@@ -31,7 +31,7 @@ export const updateOptions = <T>(
                     value: combinedOptions[selectedIndex],
                     right: combinedOptions.slice( selectedIndex + 1 )
                 },
-        combineOptions: ( options: Dropdown.Options<T> ): Dropdown.Option<T>[] =>
+        combineOptions: ( options: Dropdown.Options ): Dropdown.Option[] =>
             options.left.concat( options.value ).concat( options.right )
     }, ( { combineOptions, makeOptions } ) =>
     local( combineOptions( state.options ), combinedOptions =>
@@ -41,11 +41,11 @@ export const updateOptions = <T>(
             makeOptions( updatedOptions, -1 === newSelectedIndex ? 0 : newSelectedIndex ))
     )))));
 
-export const updateOption = <T>(
-    state: Dropdown.State<T>,
-    value: T,
-    update: { ( combinedOptions: Dropdown.Option<T>[], index: number ): Dropdown.Option<T>[] }
-): Dropdown.State<T> =>
+export const updateOption = (
+    state: Dropdown.State,
+    value: string,
+    update: { ( combinedOptions: Dropdown.Option[], index: number ): Dropdown.Option[] }
+): Dropdown.State =>
     updateOptions( state, combinedOptions =>
     local( combinedOptions.findIndex( option => option.value === value ), index =>
         -1 === index
@@ -53,16 +53,16 @@ export const updateOption = <T>(
             : update( combinedOptions, index )
     ));
 
-export const addOption = <T>( state: Dropdown.State<T>, option: Dropdown.Option<T> ): Dropdown.State<T> =>
+export const addOption = ( state: Dropdown.State, option: Dropdown.Option ): Dropdown.State =>
     local( Dropdown.is_opened( state ) ? Dropdown.close( state ) : state, state =>
         Dropdown.set_options( state,
             { ... state.options, right: state.options.right.concat( option ) } )
     );
 
-export const removeOption = <T>( state: Dropdown.State<T>, value: T ): Dropdown.State<T> =>
+export const removeOption = ( state: Dropdown.State, value: string ): Dropdown.State =>
     updateOption( state, value, ( combinedOptions, removeIndex ) =>
         combinedOptions.toSpliced( removeIndex, 1 ));
 
-export const changeOption = <T>( state: Dropdown.State<T>, value: T, newOption: Dropdown.Option<T> ): Dropdown.State<T> =>
+export const changeOption = ( state: Dropdown.State, value: string, newOption: Dropdown.Option ): Dropdown.State =>
     updateOption( state, value, ( combinedOptions, index ) =>
         combinedOptions.with( index, newOption ));

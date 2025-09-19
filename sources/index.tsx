@@ -1,21 +1,19 @@
 import * as Reactor from "@nikonov-alex/reactor";
 import { Option, Options, maybe_select_prev, maybe_select_next } from "./types";
 import * as OptionsComponent from "./options";
-import { Constructs } from "@nikonov-alex/functional-library";
-const { local } = Constructs;
-import { DetailedHTMLProps, HTMLAttributes } from "jsx-dom/types";
+import { StyleInput, JSX } from "jsx-dom/types";
 const merge = require('lodash.merge');
 import * as helpers from "./helpers";
 
 
 
-const CONTAINER_STYLES = {
+const CONTAINER_STYLES: StyleInput = {
     position: "relative",
     textAlign: "left",
     cursor: "pointer"
 };
 
-const VALUE_STYLES = {
+const VALUE_STYLES: StyleInput = {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -43,56 +41,56 @@ const unset_focused = <T extends {}>( data: T & HasFocused ): T & NoFocused =>
 
 
 
-type HasOpened<T> = { opened: OptionsComponent.State<T> };
+type HasOpened = { opened: OptionsComponent.State };
 type NoOpened = { opened?: undefined };
 
-const has_opened = <T extends {}, D>( data: T ): data is T & HasOpened<D> =>
+const has_opened = <T extends {}>( data: T ): data is T & HasOpened =>
     "opened" in data && typeof data.opened === "object";
 
-const set_opened = <T extends {}, D>( data: T, opened: OptionsComponent.State<D> ): T & HasOpened<D> =>
-    has_opened<T, D>( data ) && data.opened === opened
+const set_opened = <T extends {}>( data: T, opened: OptionsComponent.State ): T & HasOpened =>
+    has_opened( data ) && data.opened === opened
         ? data
         : { ... data, opened };
 
-const remove_opened = <T extends {}, D>( data: T & HasOpened<D> ): T & NoOpened =>
+const remove_opened = <T extends {}>( data: T & HasOpened ): T & NoOpened =>
     ( { ... data, opened: undefined } );
 
 
 
 
-type Inactive<T> = {
-    options: Options<T>
+type Inactive = {
+    options: Options
 };
-type Focused<T> = Inactive<T> & HasFocused;
-type Opened<T> = Focused<T> & HasOpened<T>;
+type Focused = Inactive & HasFocused;
+type Opened = Focused & HasOpened;
 
-type State<T> = (Inactive<T> | Focused<T> | Opened<T>);
+type State = (Inactive | Focused | Opened);
 
-const set_options = <D, T extends Inactive<D>>( data: T, options: Options<D> ): T =>
+const set_options = <T extends Inactive>( data: T, options: Options ): T =>
     data.options === options
         ? data
     : ( { ... data, options } );
 
-const is_focused = <S extends {}, D>( state: S ): state is S & Focused<D> =>
+const is_focused = <S extends {}>( state: S ): state is S & Focused =>
     has_focused( state );
 
-const is_opened = <S extends {}, D>( state: S ): state is S & Opened<D> =>
+const is_opened = <S extends {}>( state: S ): state is S & Opened =>
     is_focused( state ) && has_opened( state );
 
-const focus = <D, S extends Inactive<D>>( state: S & NoFocused ): S & Focused<D> =>
+const focus = <S extends Inactive>( state: S & NoFocused ): S & Focused =>
     set_focused( state );
 
-const leave = <D, S extends Inactive<D>>( state: S & Focused<D> & NoOpened ): S =>
+const leave = <S extends Inactive>( state: S & Focused & NoOpened ): S =>
     unset_focused( state );
 
-const open = <D, S extends  Focused<D>>( state: S & NoOpened ): S & Opened<D> =>
+const open = <S extends  Focused>( state: S & NoOpened ): S & Opened =>
     set_opened( state,
         OptionsComponent.make_initial_state( state.options ) );
 
-const close = <S extends {}, D>( state: S & Opened<D> ): S & Focused<D> =>
+const close = <S extends {}>( state: S & Opened ): S & Focused =>
     remove_opened( set_options( state, OptionsComponent.getOptions( state.opened ) ) );
 
-const maybeClose = <S extends {}, D>( state: S & Opened<D> ): S & Focused<D> | S & Opened<D> =>
+const maybeClose = <S extends {}>( state: S & Opened ): S & Focused | S & Opened =>
     !OptionsComponent.is_opened( state.opened )
         ? close( state )
         : state;
@@ -101,14 +99,13 @@ const maybeClose = <S extends {}, D>( state: S & Opened<D> ): S & Focused<D> | S
 
 
 
-const Value = <T,>( state: State<T>): HTMLElement =>
+const Value = ( state: State ): JSX.Element =>
     <div className="dropdown-value"
-        //@ts-ignore
          style={ VALUE_STYLES }>{
             is_opened( state )
                 ? OptionsComponent.getValue( state.opened ).label
                 : state.options.value.label
-    }</div> as HTMLElement;
+    }</div>;
 
 const is_options_event = ( event: Event ): boolean =>
     event.target instanceof HTMLElement &&
@@ -118,21 +115,21 @@ const is_options_event = ( event: Event ): boolean =>
 
 
 
-const onFocus = <T,>(state: State<T>, event: Event): State<T> =>
-    !is_focused<State<T>, T>( state )
+const onFocus = (state: State, event: Event): State =>
+    !is_focused( state )
         ? focus( state )
     : state;
 
-const onBlur = <T,>(state: State<T>, event: Event): State<T> =>
+const onBlur = (state: State, event: Event): State =>
     is_focused( state )
         ? leave( is_opened( state )
             ? close( state )
             : state )
     : state;
 
-const onClick = <T,>( state: State<T>, event: Event ): State<T> =>
-    has_focused<State<T>>( state )
-        ? has_opened<State<T>, T>( state )
+const onClick = ( state: State, event: Event ): State =>
+    has_focused( state )
+        ? has_opened( state )
             ? maybeClose(
                 set_opened(
                     state,
@@ -142,21 +139,21 @@ const onClick = <T,>( state: State<T>, event: Event ): State<T> =>
         : open( state )
     : open( focus( state ) )
 
-const onMouseOver = <T,>( state: State<T>, event: Event ): State<T> =>
+const onMouseOver = ( state: State, event: Event ): State =>
     !is_opened( state ) || !is_options_event( event )
         ? state
     : set_opened( state,
         OptionsComponent.mouseMoved( state.opened, event ) )
 
-const focusedKeydown = <S extends {}, T>( state: S & Focused<T> & NoOpened, event: Event ): S =>
+const focusedKeydown = <S extends {}>( state: S & Focused & NoOpened, event: Event ): S =>
     (event as KeyboardEvent).ctrlKey
         ? state
     : (event as KeyboardEvent).altKey
         ? [ "ArrowDown", "ArrowUp" ].includes( (event as KeyboardEvent).code )
-            ? open<T, S & Focused<T> & NoOpened>( state )
+            ? open( state )
             : state
     : [ "Enter", "Space" ].includes( (event as KeyboardEvent).code )
-        ? open<T, S & Focused<T> & NoOpened>( state )
+        ? open( state )
     : "ArrowDown" === (event as KeyboardEvent).code
         ? set_options( state, maybe_select_next( state.options ) )
     : "ArrowLeft" === (event as KeyboardEvent).code
@@ -167,10 +164,10 @@ const focusedKeydown = <S extends {}, T>( state: S & Focused<T> & NoOpened, even
         ? set_options( state, maybe_select_next( state.options ) )
     : state;
 
-const onKeydown = <T,>( state: State<T>, event: Event ): State<T> =>
-    !is_focused<State<T>, T>( state )
+const onKeydown = ( state: State, event: Event ): State =>
+    !is_focused( state )
         ? state
-    : has_opened<State<T>, T>( state )
+    : has_opened( state )
         ? maybeClose(
             set_opened( state, OptionsComponent.keydown( state.opened, event ) ))
         : focusedKeydown( state, event );
@@ -178,113 +175,93 @@ const onKeydown = <T,>( state: State<T>, event: Event ): State<T> =>
 
 
 
-const getSelected = <T,>( state: State<T> ): Option<T> =>
+const getSelected = ( state: State ): Option =>
         state.options.value;
 
-const getValue = <T,>( state: State<T> ): T | null =>
+const getValue = ( state: State ): string | null =>
     getSelected( state ).value;
 
 
 
 
-const valueChanged = <T,>( oldState: State<T>, newState: State<T> ): boolean =>
+const valueChanged = ( oldState: State, newState: State ): boolean =>
     !is_opened( newState ) && getValue( oldState ) !== getValue( newState );
 
-const changeEvent = <T,>( state: State<T> ): Event =>
+const changeEvent = ( state: State ): Event =>
     new CustomEvent( "change", { detail: getValue( state ), bubbles: true } );
 
 
 
 
-const hasValue = <T,>( state: State<T> ): [ValidityStateFlags, string] =>
+const hasValue = ( state: State ): [ValidityStateFlags, string] =>
     !getValue( state )
         ? [ { valueMissing: true }, "This field is required" ]
         : VALID;
 
+const formValue = ( state: State ): string =>
+    getValue( state ) ?? "";
 
 
 
-class Dropdown extends HTMLElement {
-    static formAssociated = true;
-    public readonly internals = this.attachInternals();
-}
-
-customElements.define( "nikonov-dropdown", Dropdown );
-
-declare module "jsx-dom" {
-    namespace JSX {
-        interface IntrinsicElements {
-            "nikonov-dropdown": DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>,
-        }
-    }
-}
 
 
-function make<T,>( args: {
-    options: Options<T>,
+function make( args: {
+    options: Options,
     id?: string,
     className?: string,
-    required?: boolean
-} & Partial<Reactor.Args<State<T>>> ): Reactor.Type<State<T>> {
+    validation?: {
+        elementInternals: ElementInternals,
+        required?: boolean,
+    }
+} & Partial<Reactor.Args<State>> ): Reactor.Type<State> {
 
-    const render = (state: State<T>): HTMLElement =>
-        <div className={ `dropdown ${ args.className ?? "" } ${is_opened( state ) ? "opened" : ""}` }
+    const className = args.className ?? "";
+
+    const display = ( state: State ): JSX.Element =>
+        <div className={ `dropdown ${ className } ${is_opened( state ) ? "opened" : ""}` }
              tabIndex={ 0 }
-            //@ts-ignore
              style={ CONTAINER_STYLES }>
             <Value { ... state } />
             { is_opened( state )
-                ? <OptionsComponent.Render { ... state.opened } />
+                ? <OptionsComponent.Display { ... state.opened } />
                 : <span /> }
-        </div> as HTMLElement;
+        </div>;
 
 
 
 
-    const validate = ( state: State<T> ): [ValidityStateFlags, string] =>
-        args.required
+    const validate = ( state: State ): [ValidityStateFlags, string] =>
+        args.validation!.required
             ? hasValue( state )
         : VALID;
 
-    const formValue = ( state: State<T> ): string =>
-        local( getValue( state ), value =>
-            null === value
-                ? ""
-            : typeof value === "string"
-                ? value
-            : JSON.stringify( value )
-        );
 
 
-
-    return local( <nikonov-dropdown tabIndex={ -1 } /> as Dropdown, container =>
-        Reactor.make<State<T>>( merge( { }, {
-            initialState: {
-                options: args.options
-            },
-            render,
-            events: {
-                "focus": onFocus,
-                "blur": onBlur,
-                "click": onClick,
-                "mouseover": onMouseOver,
-                "keydown": onKeydown
-            },
-            emit: [ {
-                when: valueChanged,
-                emit: changeEvent
-            } ],
-            id: args.id,
-            validation: {
-                internals: container.internals,
-                validate,
-                formValue
-            },
-            container
-        }, args ) )
-    );
+    return Reactor.make<State>( merge( { }, {
+        initialState: {
+            options: args.options
+        },
+        display,
+        events: {
+            "focus": onFocus,
+            "blur": onBlur,
+            "click": onClick,
+            "mouseover": onMouseOver,
+            "keydown": onKeydown
+        },
+        emit: [ {
+            when: valueChanged,
+            emit: changeEvent
+        } ],
+        id: args.id,
+        validation: args.validation ? {
+            internals: args.validation.elementInternals,
+            validate,
+            formValue
+        } : undefined
+    }, args ) );
 }
 
-type Type<I> = Reactor.Type<State<I>>;
+type Type = Reactor.Type<State>;
 export { Option, State, Type, make, getValue, getSelected, Options };
 export { set_options, is_opened, close, helpers };
