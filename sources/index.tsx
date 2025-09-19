@@ -221,7 +221,8 @@ function make( args: {
     const display = ( state: State ): JSX.Element =>
         <div className={ `dropdown ${ className } ${is_opened( state ) ? "opened" : ""}` }
              tabIndex={ 0 }
-             style={ CONTAINER_STYLES }>
+             style={ CONTAINER_STYLES }
+             data-value={ getValue( state ) ?? undefined }>
             <Value { ... state } />
             { is_opened( state )
                 ? <OptionsComponent.Display { ... state.opened } />
