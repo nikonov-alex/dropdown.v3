@@ -212,7 +212,8 @@ function make( args: {
     validation?: {
         elementInternals: ElementInternals,
         required?: boolean,
-    }
+    },
+    reactorArgs?: Partial<Reactor.Args<State>>
 } & Partial<Reactor.Args<State>> ): Reactor.Type<State> {
 
     const className = args.className ?? "";
@@ -259,7 +260,7 @@ function make( args: {
             validate,
             formValue
         } : undefined
-    }, args ) );
+    }, args.reactorArgs ) );
 }
 
 type Type = Reactor.Type<State>;
