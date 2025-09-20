@@ -4,7 +4,6 @@ import * as OptionsComponent from "./options";
 import { StyleInput, JSX } from "jsx-dom/types";
 const merge = require('lodash.merge');
 import * as helpers from "./helpers";
-import * as ValueReactor from "./value";
 
 
 
@@ -105,19 +104,10 @@ const displayedValue = ( state: State ): JSX.Element | string =>
         ? OptionsComponent.getValue( state.opened ).label
         : state.options.value.label;
 
-const ActualValue = ( props: {
-    value: JSX.Element | string
-} ) =>
-    "string" === typeof props.value
-        ? props.value
-    : Reactor.viewport(
-        ValueReactor.make( props.value ) );
-
-
 const Value = ( state: State ): JSX.Element =>
     <div className="dropdown-value"
          style={ VALUE_STYLES }>
-        <ActualValue value={ displayedValue( state ) } />
+        { displayedValue( state ) }
     </div>;
 
 const is_options_event = ( event: Event ): boolean =>
